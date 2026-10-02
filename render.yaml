@@ -5,3 +5,6 @@ services:
     plan: free
     healthCheckPath: /api/health
     autoDeployTrigger: checksPass
+    envVars:
+      - key: AUTOMATALAB_SECONDS
+        value: 15
