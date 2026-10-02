@@ -21,6 +21,22 @@ export default defineConfig({
         viewport: { width: 1440, height: 1000 },
       },
     },
+    {
+      name: "firefox",
+      testMatch: "cross-browser.spec.ts",
+      use: {
+        ...devices["Desktop Firefox"],
+        viewport: { width: 1440, height: 1000 },
+      },
+    },
+    {
+      name: "webkit",
+      testMatch: "cross-browser.spec.ts",
+      use: {
+        ...devices["Desktop Safari"],
+        viewport: { width: 1440, height: 1000 },
+      },
+    },
   ],
   webServer: [
     {

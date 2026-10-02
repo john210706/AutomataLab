@@ -3,17 +3,19 @@
 import logging
 import os
 from dataclasses import asdict
+from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.algorithms.core import Budget, CompileError, Limits
-from app.compiler import compare_regex, compile_regex, simulate_regex
-from app.models import CompareResult, CompileResult, SimulationResult
+from app.compiler import compare_regex, compile_regex, simulate_regex, tokenize_program
+from app.models import CompareResult, CompileResult, LexResult, SimulationResult
 
 
 def configured_limits():
@@ -46,6 +48,19 @@ class CompareRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     left: str = Field(max_length=limits.regex_length)
     right: str = Field(max_length=limits.regex_length)
+
+
+class TokenRuleRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    name: str = Field(min_length=1, max_length=32, pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
+    regex: str = Field(max_length=limits.regex_length)
+    skip: bool = False
+
+
+class LexRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    rules: list[TokenRuleRequest] = Field(min_length=1, max_length=32)
+    input: str = Field(max_length=limits.input_length)
 
 
 @app.exception_handler(CompileError)
@@ -83,3 +98,16 @@ def simulate_endpoint(body: SimulateRequest):
 @app.post("/api/compare", response_model=CompareResult)
 def compare_endpoint(body: CompareRequest):
     return compare_regex(body.left, body.right, limits)
+
+
+@app.post("/api/lex", response_model=LexResult)
+def lex_endpoint(body: LexRequest):
+    names = [rule.name for rule in body.rules]
+    if len(names) != len(set(names)):
+        raise CompileError("Token rule names must be unique.", code="duplicate_token")
+    return tokenize_program([(rule.name, rule.regex, rule.skip) for rule in body.rules], body.input, limits)
+
+
+static_directory = os.getenv("AUTOMATALAB_STATIC_DIR")
+if static_directory and Path(static_directory).is_dir():
+    app.mount("/", StaticFiles(directory=static_directory, html=True), name="frontend")

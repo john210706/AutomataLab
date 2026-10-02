@@ -133,6 +133,33 @@ export interface Comparison {
   left_path: TraceEvent[];
   right_path: TraceEvent[];
 }
+export interface LexDefinition {
+  name: string;
+  regex: string;
+  skip: boolean;
+  automaton: Graph;
+}
+export interface LexCandidate {
+  token: string;
+  lexeme: string;
+  priority: number;
+}
+export interface LexToken extends LexCandidate {
+  start: number;
+  end: number;
+}
+export interface LexStep {
+  position: number;
+  candidates: LexCandidate[];
+  chosen: LexToken;
+  skipped: boolean;
+}
+export interface LexResult {
+  input: string;
+  definitions: LexDefinition[];
+  tokens: LexToken[];
+  steps: LexStep[];
+}
 export interface ApiError {
   code: string;
   message: string;

@@ -15,6 +15,7 @@ import {
   Network,
   Play,
   RotateCcw,
+  ScanText,
   Sun,
   Terminal,
 } from "lucide-react";
@@ -33,13 +34,20 @@ const Comparator = lazy(() =>
     default: module.Comparator,
   })),
 );
+const LexicalLab = lazy(() =>
+  import("./components/LexicalLab").then((module) => ({
+    default: module.LexicalLab,
+  })),
+);
 
-type Page = "workspace" | "converter" | "simulator" | "comparator" | "learn";
+type Page =
+  "workspace" | "converter" | "simulator" | "comparator" | "lexer" | "learn";
 const navigation = [
   { id: "workspace", name: "Workspace", icon: LayoutDashboard },
   { id: "converter", name: "Automata converter", icon: Network },
   { id: "simulator", name: "String simulator", icon: Play },
   { id: "comparator", name: "Regex comparator", icon: GitCompareArrows },
+  { id: "lexer", name: "Lexical analysis", icon: ScanText },
   { id: "learn", name: "Learning reference", icon: BookOpen },
 ] as const;
 
@@ -236,6 +244,8 @@ export default function App() {
                   void compile.run({ regex: expression });
                 }}
               />
+            ) : page === "lexer" ? (
+              <LexicalLab />
             ) : page === "learn" ? (
               <>
                 <div className="page-intro">

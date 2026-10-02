@@ -9,7 +9,7 @@ client = TestClient(app)
 def test_health_and_openapi():
     assert client.get("/api/health").json()["status"] == "ok"
     schema = client.get("/openapi.json").json()
-    assert all(path in schema["paths"] for path in ["/api/compile", "/api/simulate", "/api/compare"])
+    assert all(path in schema["paths"] for path in ["/api/compile", "/api/simulate", "/api/compare", "/api/lex"])
 
 
 def test_compile_response():
@@ -65,3 +65,64 @@ def test_compare_errors_identify_the_invalid_expression(field):
     response = client.post("/api/compare", json=body)
     assert response.status_code == 422
     assert response.json()["error"]["field"] == field
+
+
+def test_lexer_uses_longest_match_then_rule_priority():
+    response = client.post("/api/lex", json={
+        "rules": [
+            {"name": "KEYWORD", "regex": "if|then"},
+            {"name": "WORD", "regex": "(i|f|t|h|e|n)(i|f|t|h|e|n)*"},
+            {"name": "INTEGER", "regex": "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*"},
+        ],
+        "input": "if42then",
+    })
+    assert response.status_code == 200
+    result = response.json()
+    assert [(token["token"], token["lexeme"]) for token in result["tokens"]] == [
+        ("KEYWORD", "if"), ("INTEGER", "42"), ("KEYWORD", "then"),
+    ]
+    assert [candidate["token"] for candidate in result["steps"][0]["candidates"]] == ["KEYWORD", "WORD"]
+
+
+def test_lexer_reports_rule_and_input_errors():
+    empty = client.post("/api/lex", json={"rules": [{"name": "EMPTY", "regex": "a*"}], "input": "a"})
+    assert empty.status_code == 422
+    assert empty.json()["error"]["field"] == "rules.0.regex"
+    invalid = client.post("/api/lex", json={"rules": [{"name": "A", "regex": "a"}], "input": "ab"})
+    assert invalid.status_code == 422
+    assert invalid.json()["error"] == {
+        "code": "lexical_error",
+        "message": "No token rule matches the input at position 1 ('b').",
+        "position": 1,
+        "field": None,
+    }
+
+
+def test_lexer_can_skip_rules_and_rejects_duplicate_names():
+    skipped = client.post(
+        "/api/lex",
+        json={
+            "rules": [
+                {"name": "LETTER", "regex": "a"},
+                {"name": "SEPARATOR", "regex": "x", "skip": True},
+            ],
+            "input": "axa",
+        },
+    )
+    assert [(token["token"], token["lexeme"]) for token in skipped.json()["tokens"]] == [
+        ("LETTER", "a"),
+        ("LETTER", "a"),
+    ]
+    assert skipped.json()["steps"][1]["skipped"]
+    duplicate = client.post(
+        "/api/lex",
+        json={
+            "rules": [
+                {"name": "TOKEN", "regex": "a"},
+                {"name": "TOKEN", "regex": "b"},
+            ],
+            "input": "a",
+        },
+    )
+    assert duplicate.status_code == 422
+    assert duplicate.json()["error"]["code"] == "duplicate_token"

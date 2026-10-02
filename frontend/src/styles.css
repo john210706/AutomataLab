@@ -2059,6 +2059,183 @@ tr:last-child td {
   line-height: 1.9;
   color: var(--muted);
 }
+.lexer-form,
+.lexer-output,
+.lexer-scan {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.lexer-form {
+  padding: 19px;
+}
+.lexer-form .panel-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.lexer-rule-list {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.lexer-rule {
+  display: grid;
+  grid-template-columns: 28px minmax(115px, 0.35fr) minmax(220px, 1fr) auto 30px;
+  align-items: end;
+  gap: 10px;
+}
+.lexer-rule label,
+.lexer-input-row label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.lexer-rule label > span,
+.lexer-input-row label > span {
+  color: var(--subtle);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+.lexer-rule input:not([type="checkbox"]),
+.lexer-input-row input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  font: 12px var(--mono);
+}
+.rule-priority {
+  display: grid;
+  place-items: center;
+  height: 37px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--accent);
+  font: 11px var(--mono);
+}
+.skip-rule {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px !important;
+  height: 37px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.skip-rule input {
+  accent-color: var(--accent);
+}
+.lexer-rule > .icon-button {
+  height: 37px;
+}
+.lexer-input-row {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
+}
+.lexer-input-row label {
+  flex: 1;
+}
+.lexer-input-row input {
+  font-size: 15px;
+}
+.lexer-input-row .primary-button {
+  height: 42px;
+}
+.lexer-note {
+  margin-top: 10px;
+  color: var(--subtle);
+  font-size: 9px;
+}
+.lexer-output {
+  margin-top: 16px;
+  padding: 17px;
+}
+.token-stream {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 13px;
+}
+.recognized-token {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 9px;
+  background: var(--bg);
+}
+.recognized-token span {
+  color: var(--accent);
+  font-size: 8px;
+  letter-spacing: 0.07em;
+}
+.recognized-token code {
+  font-size: 13px;
+}
+.recognized-token small {
+  color: var(--subtle);
+  font-size: 8px;
+}
+.lexer-scan {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.42fr) minmax(380px, 1fr);
+  gap: 18px;
+  margin-top: 16px;
+  padding: 17px;
+}
+.scan-step h2 {
+  margin: 15px 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+.scan-step h2 code {
+  color: var(--accent);
+}
+.scan-step > p {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+.candidate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 15px 0;
+}
+.candidate-list span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.candidate-list span.chosen {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+.candidate-list b {
+  font-weight: 550;
+}
+.scan-step .playback {
+  margin-top: 18px;
+}
+.compiled-rule {
+  min-width: 0;
+}
+.compiled-rule .data-tabs {
+  margin-bottom: 8px;
+  overflow-x: auto;
+}
 .reference-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2289,6 +2466,15 @@ tr:last-child td {
   }
 }
 @media (max-width: 800px) {
+  .lexer-scan {
+    grid-template-columns: 1fr;
+  }
+  .lexer-rule {
+    grid-template-columns: 28px minmax(100px, 0.35fr) minmax(
+        180px,
+        1fr
+      ) auto 30px;
+  }
   .explorer-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2374,6 +2560,19 @@ tr:last-child td {
 @media (max-width: 600px) {
   body {
     min-width: 360px;
+  }
+  .lexer-rule {
+    grid-template-columns: 28px 1fr 30px;
+  }
+  .lexer-rule .rule-regex {
+    grid-column: 2 / 4;
+  }
+  .lexer-rule .skip-rule {
+    grid-column: 2;
+  }
+  .lexer-input-row {
+    align-items: stretch;
+    flex-direction: column;
   }
   .sidebar {
     position: sticky;

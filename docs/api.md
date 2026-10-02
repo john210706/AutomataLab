@@ -34,6 +34,20 @@ Returns `valid: true`, `equivalent`, sorted union `alphabet`, nullable `countere
 
 Returns `status: "ok"` and active server limits. It does not compile an expression.
 
+## POST /api/lex
+
+```json
+{
+  "rules": [
+    {"name": "KEYWORD", "regex": "if|then", "skip": false},
+    {"name": "INTEGER", "regex": "(0|1|2|3|4|5|6|7|8|9)(0|1|2|3|4|5|6|7|8|9)*", "skip": false}
+  ],
+  "input": "if42then"
+}
+```
+
+Rules are ordered. The scanner chooses the longest accepted prefix; the earlier rule wins equal-length ties. A rule that accepts epsilon is rejected because it cannot advance the scanner. The response contains compiled minimized DFAs, emitted tokens with half-open source ranges, and each scanner step with all accepting candidates. Unmatched input returns `lexical_error` with its zero-based position.
+
 ## Error responses
 
 Grammar and resource errors use HTTP 422:

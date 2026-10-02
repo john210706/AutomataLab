@@ -1,6 +1,6 @@
 # AutomataLab
 
-An interactive regex-to-DFA compiler for learning Compiler Design. Follow an expression through tokenization, postfix conversion, Thompson ε-NFA construction, subset construction, and partition-refinement minimization. Every timeline step comes from the actual computation for your input.
+An interactive regex-to-DFA compiler and lexical-analysis lab for learning Compiler Design. Follow an expression through tokenization, postfix conversion, Thompson ε-NFA construction, subset construction, and partition-refinement minimization. Every timeline step comes from the actual computation for your input.
 
 ## Run locally
 
@@ -15,14 +15,10 @@ sudo dnf install python3 python3-pip nodejs npm
 From the repository root:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r backend/requirements.lock
-npm ci --prefix frontend
-bash scripts/dev.sh
+./run.sh
 ```
 
-Open [AutomataLab](http://127.0.0.1:5173). Press Ctrl+C in the terminal to stop both servers. Installations need internet access; the installed app does not. Graphviz is not required: diagram exports use SVG and the browser's native canvas.
+The launcher installs project dependencies automatically on the first run, then starts both servers. Open [AutomataLab](http://127.0.0.1:5173). Press Ctrl+C in the terminal to stop both servers. The first run needs internet access; later runs do not. Graphviz is not required: diagram exports use SVG and the browser's native canvas.
 
 To run the servers separately, use two terminals from the repository root:
 
@@ -48,6 +44,7 @@ The frontend proxies `/api` requests to port 8000. FastAPI documentation is avai
 5. Test strings on the ε-NFA, DFA, or minimized DFA. Empty input tests ε; spaces and all other test characters are consumed exactly.
 6. Compare two regexes. The product search either proves equivalence or returns a shortest distinguishing string, with synchronized replay on both automata.
 7. Export a graph or the current step as SVG, PNG, or JSON. Export transition tables as CSV, or the complete compilation and traces as JSON.
+8. Open **Lexical analysis**, define ordered token rules, and scan a short input using longest match and rule priority. Every rule is compiled to a minimized DFA that can be inspected.
 
 Light/dark theme and up to five recent compiled expressions are stored locally in your browser. Algorithm-stage switches reset playback to the first step; editing a regex clears the previous compilation. Manual timeline navigation pauses playback.
 
@@ -120,7 +117,18 @@ npm run test:e2e
 
 Browser tests automatically start the API and frontend if those ports are free, or reuse running local servers. Playwright may use its Ubuntu fallback browser build on Fedora; if it reports missing system libraries, install the specifically reported libraries using Fedora's package manager. Do not assume Playwright's Debian-oriented system installation command applies to Fedora.
 
-`npm run preview --prefix frontend` serves a built frontend at [port 4173](http://127.0.0.1:4173), still using the local backend on port 8000. The production build is a local preview, not a hosted deployment.
+`npm run preview --prefix frontend` serves a built frontend at [port 4173](http://127.0.0.1:4173), still using the local backend on port 8000.
+
+## Production container
+
+Build and run the single-service production image with Docker or Podman:
+
+```bash
+docker build -t automatalab .
+docker run --rm -p 8000:8000 automatalab
+```
+
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000). The image builds the frontend, serves it from FastAPI, exposes `/api/health`, and needs no database or external runtime service. Every push to `main` verifies the project and publishes `ghcr.io/john210706/automatalab:latest` through GitHub Actions.
 
 ## Limits and known tradeoffs
 
@@ -142,7 +150,7 @@ Configure these before starting the backend. Exceeded limits produce explicit er
 - Dense graphs can require zooming or manual rearrangement; general optimal edge routing is outside this version.
 - Test-string replay operates on the restricted ASCII input alphabet; Unicode and advanced production-regex syntax are not supported.
 - SVG/PNG exports preserve all current nodes, edges, highlights, and manually moved positions. They use a readable light export theme rather than a screenshot of the whole interface. PNG dimensions are capped at 8,000 pixels on the longer side.
-- The optional multi-token lexical analyzer is not implemented. Token priority and longest-match behavior belong to a later extension.
-- These local development servers are not hardened for public hosting. Keep them on localhost.
+- Lexical rules use the documented restricted regex grammar. Because spaces and punctuation are not literals in that grammar, input programs for this educational extension use covered letters and digits; advanced production-lexer syntax remains outside the project.
+- `./run.sh` starts local development servers. Use the production container for hosting.
 
 See [architecture](docs/architecture.md), [algorithm explanations](docs/algorithms.md), [API contract](docs/api.md), [testing](docs/testing.md), the [requirements checklist](docs/requirements-checklist.md), and the [faculty demonstration](docs/demo.md). Actual run results and outstanding work are recorded in [PROGRESS.md](PROGRESS.md).

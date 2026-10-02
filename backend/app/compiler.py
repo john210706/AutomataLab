@@ -7,7 +7,16 @@ from app.algorithms.parser import parse
 from app.algorithms.simulation import simulate
 from app.algorithms.subset import determinize
 from app.algorithms.thompson import thompson
-from app.models import CompareResult, CompileResult, SimulationResult
+from app.models import (
+    CompareResult,
+    CompileResult,
+    LexCandidate,
+    LexDefinition,
+    LexResult,
+    LexStep,
+    LexToken,
+    SimulationResult,
+)
 
 
 def compile_regex(expression: str, budget: Budget | None = None) -> tuple[CompileResult, dict[str, Automaton]]:
@@ -45,3 +54,59 @@ def compare_regex(left: str, right: str, limits: Limits) -> CompareResult:
             raise
     budget.tracing = True
     return compare(compiled["left"], compiled["right"], budget)
+
+
+def tokenize_program(rules: list[tuple[str, str, bool]], text: str, limits: Limits) -> LexResult:
+    budget = Budget(limits=limits, tracing=False)
+    compiled = []
+    definitions = []
+    for priority, (name, expression, skip) in enumerate(rules):
+        try:
+            result, automata = compile_regex(expression, budget)
+        except CompileError as error:
+            error.field = f"rules.{priority}.regex"
+            raise
+        automaton = automata["minimized"]
+        if automaton.start in automaton.accepting:
+            error = CompileError(
+                f"Token {name!r} accepts the empty string and could prevent scanning from advancing.",
+                code="empty_token",
+            )
+            error.field = f"rules.{priority}.regex"
+            raise error
+        compiled.append((name, skip, automaton))
+        definitions.append(LexDefinition(name=name, regex=expression, skip=skip, automaton=result.minimized))
+
+    tokens = []
+    steps = []
+    position = 0
+    while position < len(text):
+        budget.check()
+        candidates = []
+        for priority, (name, _, automaton) in enumerate(compiled):
+            state = automaton.start
+            accepted_end = None
+            for end in range(position, len(text)):
+                symbol = text[end]
+                if symbol not in automaton.alphabet:
+                    break
+                state = automaton.next(state, symbol)
+                if state in automaton.accepting:
+                    accepted_end = end + 1
+            if accepted_end is not None:
+                candidates.append(LexCandidate(token=name, lexeme=text[position:accepted_end], priority=priority))
+        if not candidates:
+            raise CompileError(
+                f"No token rule matches the input at position {position} ({text[position]!r}).",
+                position=position,
+                code="lexical_error",
+            )
+        winner = max(candidates, key=lambda candidate: (len(candidate.lexeme), -candidate.priority))
+        end = position + len(winner.lexeme)
+        token = LexToken(**winner.model_dump(), start=position, end=end)
+        skipped = compiled[winner.priority][1]
+        steps.append(LexStep(position=position, candidates=candidates, chosen=token, skipped=skipped))
+        if not skipped:
+            tokens.append(token)
+        position = end
+    return LexResult(input=text, definitions=definitions, tokens=tokens, steps=steps)

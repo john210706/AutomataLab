@@ -15,19 +15,20 @@ This maps the mandatory master-prompt scope to the implementation. Test counts a
 | Regex equivalence | Complete over the union alphabet; exact product BFS; reproducible shortest witness including epsilon; paired graph replay; send the witness to either simulator. |
 | Graph renderer | Shared React Flow components with Dagre layout, initial arrows, double accepting circles, loops, curved edges, individual grouped-label highlights, state inspection, manual/keyboard movement, zoom/pan/fit/reset, and fullscreen. |
 | Historical state fidelity | Deeply detached snapshots; selected graph, stacks, subsets, partitions, explanations, and tables derive from the same event. Unit and browser tests verify restoration. |
-| Interface and education | Workspace/converter/simulator/comparator/reference navigation, examples, reset, dark/light themes, mobile layout, accessible control labels, pseudocode, and general reference explanations separated from computed explanations. |
-| API and models | Typed Pydantic results and stage-discriminated event data; compile/simulate/compare/health routes; OpenAPI; strict requests; structured errors and local CORS. |
+| Interface and education | Workspace/converter/simulator/comparator/lexer/reference navigation, examples, reset, dark/light themes, mobile layout, accessible control labels, pseudocode, and general reference explanations separated from computed explanations. |
+| Lexical analysis | Ordered token definitions compile to minimized DFAs. Interactive scanning shows candidates and applies longest match, declaration priority, optional skip rules, and positioned lexical errors. |
+| API and models | Typed Pydantic results and stage-discriminated event data; compile/simulate/compare/lex/health routes; OpenAPI; strict requests; structured errors and local CORS. |
 | Exports | Current graph/step SVG, PNG, and JSON; full compilation JSON; transition-table CSV. Bounds include all nodes and long labels rather than the visible viewport. |
 | Performance and reliability | Limits on regex/input length, states, events, snapshot estimate, comparison pairs, and computation time. Abort plus request identity prevents stale UI results. Explicit failure instead of incomplete automata. |
 | Required example | `(a|b)*ab` yields 12 → 4 → 3 states. Isomorphic minimal transitions are tested, and `bab` is accepted through a real browser journey. |
 | Tests | Original-language oracle comparisons, seeded generated expressions, exact DFA equivalence, graph invariants, detached histories, limits, HTTP tests, frontend controls, and real browser workflows. |
-| Local delivery | Dependency locks, Linux/Fedora installation notes, combined development launcher, production build, architecture/algorithm/API/test docs, and faculty demonstration. |
+| Delivery | Dependency locks, one-command local launcher, production container, CI/container publishing, architecture/algorithm/API/test docs, and faculty demonstration. |
 
 ## Deliberate limits
 
-- The optional lexical-analysis extension, escaped literals, `+`, `?`, character classes, and empty-language syntax are outside this version.
+- The lexical-analysis extension uses the core restricted grammar. Escaped literals, `+`, `?`, character classes, whitespace tokens, and empty-language syntax remain outside this version.
 - Graph routing uses a bounded curve heuristic; dense graphs may need zoom, fullscreen, or manual rearrangement. It does not promise a crossing-free layout for every input.
 - Partition refinement is the straightforward educational algorithm, not Hopcroft's optimized algorithm.
 - Full snapshots simplify replay but impose a documented trace-size ceiling. PNG exports cap their long side at 8,000 pixels.
-- Browser verification uses Chromium. Firefox/WebKit behavior is not claimed as tested.
-- Local development/preview is implemented; no public deployment was requested or performed.
+- The full browser suite runs in Chromium; core compiler and lexer journeys also pass in Firefox and WebKit.
+- A production image is published to GitHub Container Registry. Running a public website still requires selecting a hosting account and domain.

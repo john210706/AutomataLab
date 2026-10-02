@@ -157,3 +157,35 @@ class CompareResult(BaseModel):
     trace: list[TraceEvent]
     left_path: list[TraceEvent]
     right_path: list[TraceEvent]
+
+
+class LexDefinition(BaseModel):
+    name: str
+    regex: str
+    skip: bool
+    automaton: Graph
+
+
+class LexCandidate(BaseModel):
+    token: str
+    lexeme: str
+    priority: int
+
+
+class LexToken(LexCandidate):
+    start: int
+    end: int
+
+
+class LexStep(BaseModel):
+    position: int
+    candidates: list[LexCandidate]
+    chosen: LexToken
+    skipped: bool
+
+
+class LexResult(BaseModel):
+    input: str
+    definitions: list[LexDefinition]
+    tokens: list[LexToken]
+    steps: list[LexStep]

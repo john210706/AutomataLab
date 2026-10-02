@@ -323,3 +323,25 @@ test("minimization merges one class at a time and states support keyboard inspec
     .poll(() => page.evaluate(() => Boolean(document.fullscreenElement)))
     .toBe(false);
 });
+
+test("lexical analysis applies longest match, priority, and reports errors", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Lexical analysis", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Compile and scan" }).click();
+  const stream = page.getByRole("region", { name: "Recognized tokens" });
+  await expect(stream).toContainText("KEYWORD");
+  await expect(stream).toContainText("if");
+  await expect(stream).toContainText("INTEGER");
+  await expect(stream).toContainText("42");
+  await expect(stream).toContainText("then");
+  await expect(page.getByText("2 rules accepted a prefix.")).toBeVisible();
+  await expect(page.getByRole("region", { name: /KEYWORD/ })).toBeVisible();
+
+  await page.getByLabel("Input program").fill("if#");
+  await page.getByRole("button", { name: "Compile and scan" }).click();
+  await expect(page.getByRole("alert")).toContainText("position 2");
+});

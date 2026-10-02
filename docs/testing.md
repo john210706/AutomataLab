@@ -12,13 +12,13 @@ Bounded acceptance comparisons run NFA, DFA, and minimized DFA against a test-on
 
 Specific tests cover empty alphabets, epsilon cycles, accepting initial states, sink states, completion of partial DFAs, unreachable-state removal, different comparison alphabets, an empty-string witness, shortest witnesses, reproducibility, historical snapshot detachment, and all resource-limit categories.
 
-`test_api.py` exercises real FastAPI validation/serialization, OpenAPI, routes, error positions, strict inputs, simulation, comparison, and local-only CORS.
+`test_api.py` exercises real FastAPI validation/serialization, OpenAPI, routes, error positions, strict inputs, simulation, comparison, lexical longest-match/priority/error behavior, and local-only CORS.
 
 ## Frontend
 
 Unit/component tests use Vitest, Testing Library, and jsdom. They cover timeline progression, speed, pause-on-seek, stage cleanup, accessible controls, stale-response suppression, network errors, synchronized transition tables, grouped edge identities, reverse curves, complete SVG export, and validation display.
 
-Browser tests use Playwright Chromium against the real backend. They cover the complete compiler journey; growing and shrinking historical graphs; source/postfix output; subset mapping; minimized/original tables; state inspection; `bab` simulation and clickable history; comparison and witness replay including epsilon; invalid input and expression attribution; non-ASCII rejection; examples that do not auto-generate; workspace reset; autoplay; speed and seeking; light theme; SVG/PNG downloads; fullscreen; keyboard state inspection and movement preservation; fitting all states after a layout split; and a 390-pixel mobile viewport with no horizontal page overflow.
+Browser tests use Playwright against the real backend. The full Chromium suite covers the complete compiler journey; growing and shrinking historical graphs; source/postfix output; subset mapping; minimized/original tables; state inspection; `bab` simulation and clickable history; comparison and witness replay including epsilon; lexical scanning and errors; invalid input and expression attribution; non-ASCII rejection; examples that do not auto-generate; workspace reset; autoplay; speed and seeking; light theme; SVG/PNG downloads; fullscreen; keyboard state inspection and movement preservation; fitting all states after a layout split; and a 390-pixel mobile viewport with no horizontal page overflow. Targeted compiler-and-lexer journeys also run in Firefox and WebKit. On Fedora, WebKit is verified in Playwright's official Ubuntu container because its native fallback browser requires Ubuntu-versioned libraries.
 
 Screenshots are captured in `frontend/test-results/`. On failure, Playwright also saves traces and error screenshots. These are generated verification artifacts and are ignored by Git.
 

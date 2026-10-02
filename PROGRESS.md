@@ -2,7 +2,7 @@
 
 ## Request and working agreement
 
-Build the complete local educational regex compiler described in the supplied master prompt. Work carefully, verify actual behavior, and keep this file current so work can resume after a usage reset. Do not spend reset credits. No deployment, accounts, database, or optional lexer needed.
+Build the complete educational regex compiler described in the supplied master prompt, then add the optional lexical analyzer, cross-browser verification, production packaging, and GitHub delivery requested in follow-up work.
 
 ## Execution plan
 
@@ -37,11 +37,13 @@ Build the complete local educational regex compiler described in the supplied ma
 - Keyboard node positions persist across timeline changes; that regression is browser-tested.
 - Core delivery complete on 2026-10-02. Final frontend regressions and production build passed; local preview is ready for user review.
 - Final visual review confirmed readable self-loop/return-edge labels, full minimized-graph visibility, double accepting circles, initial arrows, and matching original/minimized mappings.
+- Optional lexical analysis is complete: ordered rules compile to minimized DFAs, maximal munch and rule-priority ties are exact, skip rules are supported, epsilon-matching rules are rejected, and lexical errors retain input positions.
+- The production container builds and serves the frontend and API as one service. GitHub Actions verifies pushes and publishes the latest image to GitHub Container Registry.
 
 ## Verification
 
-- Backend: `cd backend && ../.venv/bin/python -m pytest -q`: **68 passed** (one Starlette/httpx deprecation warning).
-- Frontend: `npm test` — **15 unit/component tests passed**. `npm run test:e2e` — **7 Chromium browser tests passed** on the final source, including viewport and keyboard-movement regressions (13.3 seconds).
+- Backend: `cd backend && ../.venv/bin/python -m pytest -q`: **71 passed** (one Starlette/httpx deprecation warning).
+- Frontend: `npm test` — **15 unit/component tests passed**. **9 Chromium browser journeys**, plus targeted Firefox and WebKit compiler/lexer journeys, passed on the final source.
 - Frontend production build: **passed**, now split into chunks below 250 kB; the earlier bundle-size warning is resolved.
 - Last build: `npm run build` (TypeScript + Vite) passed. `git diff --check` passed. Real backend health check returned `status: ok`.
 - Frontend dependencies installed; npm reported zero known vulnerabilities.
@@ -51,21 +53,21 @@ Build the complete local educational regex compiler described in the supplied ma
 
 ## Delivery files and operation
 
-- Start both services from the repository root: `bash scripts/dev.sh`.
+- Start both services from the repository root: `./run.sh`. It installs missing project dependencies on the first run.
 - Workspace: `http://127.0.0.1:5173`; API documentation: `http://127.0.0.1:8000/docs`.
 - Dependencies are installed in `.venv` and `frontend/node_modules`; lockfiles are saved for clean setup.
 - Main entry points: `backend/app/compiler.py`, `backend/app/main.py`, `frontend/src/App.tsx`.
 - Documentation: README plus `docs/architecture.md`, `docs/algorithms.md`, `docs/api.md`, `docs/testing.md`, `docs/demo.md`, and `docs/requirements-checklist.md`.
 - The local servers were left running for review. A browser panel was requested in Codex; the app reported it as queued for the task window.
-- Source changes are saved in the working tree. No commits, pushes, or deployment were performed.
+- Delivery is committed to `main`; GitHub Actions verifies the pushed revision and publishes the production image.
 
 ## Remaining limitations
 
-- Optional multi-token lexer and additional regex syntax are not implemented.
+- The lexer uses the core restricted regex syntax; escaped punctuation, character classes, and whitespace tokens are not added.
 - Large/dense automata can hit the documented resource limits or benefit from fullscreen/manual rearrangement. Routing is a bounded heuristic, not a universal optimal-layout guarantee.
-- Browser tests ran in Chromium; Firefox/WebKit have not been claimed as tested.
+- WebKit requires Playwright's official container on Fedora because the downloaded fallback build expects Ubuntu-versioned libraries.
 - One upstream Starlette/httpx test-client deprecation warning remains; the API tests pass.
 
 ## Resume
 
-Read this file and inspect Git status. The requested core application is implemented and verified. Do not restart implementation or infer that quota exhaustion left a missing milestone. Continue from user feedback or a newly requested enhancement, preserving existing work. If the preview has stopped, run the documented launcher. The optional lexical-analysis extension remains a separately considered extension.
+Read this file and inspect Git status. The requested application and optional engineering extension are implemented and verified. Continue from user feedback or a chosen public hosting provider. If the preview has stopped, run the documented launcher.

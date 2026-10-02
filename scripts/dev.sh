@@ -2,9 +2,19 @@
 # Run both local servers. Ctrl+C stops only the processes this script started.
 set -euo pipefail
 project_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-if [[ ! -x "$project_root/.venv/bin/python" || ! -f "$project_root/frontend/node_modules/vite/bin/vite.js" ]]; then
-  echo "Install the backend and frontend dependencies first; see README.md."
-  exit 1
+command -v python3 >/dev/null || { echo "Python 3 is required."; exit 1; }
+command -v npm >/dev/null || { echo "Node.js and npm are required."; exit 1; }
+if [[ ! -x "$project_root/.venv/bin/python" ]]; then
+  echo "Setting up the Python environment..."
+  python3 -m venv "$project_root/.venv"
+fi
+if ! "$project_root/.venv/bin/python" -c 'import fastapi, uvicorn' 2>/dev/null; then
+  echo "Installing backend dependencies..."
+  "$project_root/.venv/bin/python" -m pip install -r "$project_root/backend/requirements.lock"
+fi
+if [[ ! -f "$project_root/frontend/node_modules/vite/bin/vite.js" ]]; then
+  echo "Installing frontend dependencies..."
+  npm ci --prefix "$project_root/frontend"
 fi
 pids=()
 cleanup() {
