@@ -1,5 +1,7 @@
 # AutomataLab
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/john210706/AutomataLab)
+
 An interactive regex-to-DFA compiler and lexical-analysis lab for learning Compiler Design. Follow an expression through tokenization, postfix conversion, Thompson ε-NFA construction, subset construction, and partition-refinement minimization. Every timeline step comes from the actual computation for your input.
 
 ## Run locally
@@ -129,6 +131,8 @@ docker run --rm -p 8000:8000 automatalab
 ```
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000). The image builds the frontend, serves it from FastAPI, exposes `/api/health`, and needs no database or external runtime service. Every push to `main` verifies the project and publishes `ghcr.io/john210706/automatalab:latest` through GitHub Actions.
+
+For a public deployment, use the **Deploy to Render** button at the top of this file. The included Blueprint creates one free Docker web service and waits for GitHub checks to pass before automatically deploying later commits.
 
 ## Limits and known tradeoffs
 

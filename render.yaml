@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: automatalab
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
